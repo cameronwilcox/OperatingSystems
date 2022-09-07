@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <array>
+#include <tuple>
 #include <queue>
 
 namespace MemManager
@@ -39,7 +41,7 @@ void add_job(Job job)
     {
         for (int i = 0; i < 16; i++) //loop over memory slots
         {
-            if(mMemory[i] == 0) // if there is no job at the slot
+            if(std::get<0>(mMemory[i]) == 0) // if there is no job at the slot
             {
                 if (contiguous_free == 0) // if this is the first free memory slot after a full slot
                 {
@@ -58,7 +60,15 @@ void add_job(Job job)
             inserted = true;
             for (int i = begin_contig_index; i < job.mNumBlocksNeeded + begin_contig_index; i++)
             {
-                mMemory[i] = job.mID;
+                if (job.mMemSize % 4096 > 0 && i == (job.mNumBlocksNeeded + begin_contig_index - 1))
+                {
+                    mMemory[i] = std::make_tuple(job.mID, job.mMemSize % 4096);
+                }
+                else
+                {
+                    mMemory[i] = std::make_tuple(job.mID, 4096);
+                }
+                
             }
         }
     }
@@ -75,7 +85,7 @@ void print_memory()
 {
     for(int i = 0; i < 16; i++)
     {
-        std::cout << "Block: " << i << "    PID: " << mMemory[i] << '\n';
+        std::cout << "Block: " << i << "    PID: " << std::get<0>(mMemory[i]) << "      Size: " << std::get<1>(mMemory[i])<< '\n';
     }
 }
 
@@ -83,9 +93,8 @@ void print_memory()
 
 private:
 
-std::queue<Job>  mLeastRecent;          //Tracks what job has been in the longest
-int mMemory[16] = {};                        //Track what jobs are in what slot based on ID
-int              mIDLastUsed = -99;
+std::queue<Job>                      mLeastRecent;                                          //Tracks what job has been in the longest
+std::array<std::tuple<int, int>, 16> mMemory = {};                      //Track what jobs are in what slot based on ID
 
 };
 
