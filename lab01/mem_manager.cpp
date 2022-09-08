@@ -34,6 +34,11 @@ public:
 
 void add_job(Job job)
 {
+    if (job.mNumBlocksNeeded > 16)
+    {
+        std::cerr << "Too big of a job\n";
+        return;
+    }
     bool inserted = false;
     int contiguous_free = 0;
     int begin_contig_index = 0;
@@ -75,6 +80,8 @@ void add_job(Job job)
         else
         {
             auto to_be_removed = mLeastRecent.front();
+            begin_contig_index = 0;
+            contiguous_free = 0;
             remove_job(to_be_removed);
         }
     }
@@ -82,12 +89,18 @@ void add_job(Job job)
 
 void remove_job(Job job)
 {
+    bool removed = false;
     for (auto &block : mMemory)
     {
         if (std::get<0>(block) == job.mID)
         {
-            block = {};
+            block = {0,0};
+            removed = true;
         }
+    }
+    if (removed)
+    {
+        mLeastRecent.pop();
     }
 }
 
@@ -125,6 +138,7 @@ int main()
 {
     MemManager::Job job1(8000, 1);
     MemManager::Job job2(8000, 2);
+    MemManager::Job job3(65535, 3);
 
     MemManager::MemorySystem system;
 
@@ -132,14 +146,18 @@ int main()
     system.add_job(job2);
 
     std::cout << "Before: \n";
-
     system.print_memory();
 
-    system.remove_job(job1);
+    system.add_job(job3);
 
     std::cout << "After: \n";
-
     system.print_memory();
+
+    // system.remove_job(job1);
+
+    // std::cout << "After: \n";
+
+    // system.print_memory();
 
     return 0;
 }
