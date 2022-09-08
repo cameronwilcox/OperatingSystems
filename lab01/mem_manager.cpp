@@ -70,14 +70,25 @@ void add_job(Job job)
                 }
                 
             }
+            mLeastRecent.push(job);
+        }
+        else
+        {
+            auto to_be_removed = mLeastRecent.front();
+            remove_job(to_be_removed);
         }
     }
-    
 }
 
-void remove_job()
+void remove_job(Job job)
 {
-    
+    for (auto &block : mMemory)
+    {
+        if (std::get<0>(block) == job.mID)
+        {
+            block = {};
+        }
+    }
 }
 
 
@@ -119,6 +130,14 @@ int main()
 
     system.add_job(job1);
     system.add_job(job2);
+
+    std::cout << "Before: \n";
+
+    system.print_memory();
+
+    system.remove_job(job1);
+
+    std::cout << "After: \n";
 
     system.print_memory();
 
