@@ -24,9 +24,9 @@ public:
             mNumBlocksNeeded++;
         }
     }
-    int mMemSize = 0;
+    int mMemSize         = 0;       
     int mNumBlocksNeeded = -99;
-    int mID = -99;
+    int mID              = -99;
 };
 
 
@@ -53,17 +53,21 @@ void add_job(Job job)
             {
                 if (contiguous_free == 0) // if this is the first free memory slot after a full slot
                 {
-                    begin_contig_index = i;
+                    begin_contig_index = i; // track the beginning of the free slots
                 }
                 contiguous_free++;
+                if (contiguous_free >= job.mNumBlocksNeeded) // if we have reached the number of free blocks we need
+                {
+                    break;
+                }
             }
             else
             {
-                contiguous_free = 0;
+                contiguous_free = 0; // reset if not the case
             }
         }
 
-        if (contiguous_free >= job.mNumBlocksNeeded)
+        if (contiguous_free >= job.mNumBlocksNeeded) // insert block
         {
             inserted = true;
             for (int i = begin_contig_index; i < job.mNumBlocksNeeded + begin_contig_index; i++)
@@ -80,7 +84,7 @@ void add_job(Job job)
             }
             mLeastRecent.push(job);
         }
-        else
+        else // if there are not enough free blocks we need to remove some
         {
             auto to_be_removed = mLeastRecent.front();
             begin_contig_index = 0;
@@ -90,7 +94,7 @@ void add_job(Job job)
     }
 }
 
-void remove_job(Job job)
+void remove_job(Job job) // removes jobs, works on a first in first out basis
 {
     bool removed = false;
     for (auto &block : mMemory)
@@ -129,7 +133,8 @@ std::array<std::tuple<int, int>, 16> mMemory = {};                      //Track 
 
 };
 
-
+// ltrim, rtrim, and trim are code snippets I pulled from the internet to help with 
+// trimming strings down. Not necessary to the logic of the program
 std::string ltrim(const std::string &s)
 {
     size_t start = s.find_first_not_of(WHITESPACE);
@@ -148,7 +153,7 @@ std::string trim(const std::string &s) {
 
 void handle_insert(MemManager::MemorySystem &system, MemManager::Job &job)
 {
-
+    system.add_job(std::move(job));
 }
 
 void print_options()
@@ -201,28 +206,5 @@ void repl()
 int main()
 {
     repl();
-    // MemManager::Job job1(8000, 1);
-    // MemManager::Job job2(8000, 2);
-    // MemManager::Job job3(65535, 3);
-
-    // MemManager::MemorySystem system;
-
-    // system.add_job(job1);
-    // system.add_job(job2);
-
-    // std::cout << "Before: \n";
-    // system.print_memory();
-
-    // system.add_job(job3);
-
-    // std::cout << "After: \n";
-    // system.print_memory();
-
-    // system.remove_job(job1);
-
-    // std::cout << "After: \n";
-
-    // system.print_memory();
-
     return 0;
 }
