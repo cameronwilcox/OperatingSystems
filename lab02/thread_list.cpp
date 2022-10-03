@@ -12,7 +12,11 @@ public:
 
 };
 
-
+int counter = 0;
+int getCounter()
+{
+    return counter;
+}
 
 void insert(Node **head, int new_data)
 {
@@ -40,7 +44,7 @@ void insert(Node **head, int new_data)
 }
 
 void displayList(Node* node) {
-    struct Node* last;
+    Node* last;
   
     while (node != NULL) {
         std::cout<<node->mData<<"<==>";
@@ -55,6 +59,25 @@ void displayList(Node* node) {
 }
 
 
+void remove(Node **head)
+{
+    if (counter == 1)
+    {
+        (*head)->mNext = NULL;
+        (*head)->mPrev = NULL;
+        *head = NULL;
+    }
+    else
+    {
+        Node *tmp = *head;
+        (*head) = (*head)->mNext;
+        (*head)->mPrev = NULL;
+        tmp = NULL;
+    }
+    counter--;
+}
+
+
 
 
 }
@@ -66,6 +89,7 @@ int main()
     thdlst::insert(&head, 3);
     thdlst::insert(&head, 6);
     thdlst::insert(&head, 10);
+    thdlst::remove(&head);
 
     thdlst::displayList(head);
     return 0;
